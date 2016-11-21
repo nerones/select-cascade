@@ -8,11 +8,14 @@
   </head>
   <body>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- Requires vue-resource -->
+    <script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
     <script src="build/bundle.js" type="text/javascript" charset="utf-8"></script>
     <div id="app">
       <Cascade
          select-url="http://172.16.0.25:86/api/organismos/%ID%/hijos_directos"
          select-wildcard="%ID%"
+         :select-data-processor="process"
          textholder="Seleccione...">
       </Cascade>
     </div>
@@ -21,6 +24,11 @@ var app = new Vue({
   el: '#app',
   data: {
     message: 'Hello Vue!'
+  },
+  methods: {
+    process: function(data) {
+      return data.body.hijos
+    }
   }
 })
     </script>

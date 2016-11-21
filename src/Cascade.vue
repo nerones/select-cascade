@@ -1,6 +1,7 @@
 <template>
   <div>
     <cascade-select v-on:selected_option="onSelectedOption"
+      :disabled="loadingData"
       v-for="select in selects"
       v-bind:select="select">
     </cascade-select>
@@ -10,23 +11,27 @@
 <script>
 import CascadeSelect from './CascadeSelect.vue'
 
-const createSelectData = (level, options) => {
+const createSelectData = (level, options, $this) => {
+  let label = level === 0 ? $this.selectMainLabel : $this.selectChildLabel
   return {
     level: level,
-    options: options
+    options: options,
+    label: label
   }
 }
 
 const loadData = (idSelected, $this) => {
   let url = $this.selectUrl.replace($this.selectWildcard, idSelected)
+  $this.setLoadingData(true)
   $this.$http.get(url).then((response) => {
-    let options = response.body.hijos
+    let options = $this.selectDataProcessor(response)
     if (options) {
       options.unshift({id: null, nombre: $this.textholder})
     }
     $this.selects.push(
-      createSelectData($this.selects.length, options)
+      createSelectData($this.selects.length, options, $this)
     )
+    $this.setLoadingData(false)
   })
 }
 
@@ -44,18 +49,43 @@ export default {
         return
       }
       loadData(idSelected, this)
+    },
+    setLoadingData: function (state) {
+      this.loadingData = state;
     }
   },
   data () {
     return {
-      selects: []
+      selects: [],
+      loadingData: false
     }
   },
-  props: [
-    'textholder',
-    'selectUrl',
-    'selectWildcard'
-  ],
+  props: {
+    textholder: {
+      type: String,
+      required: true
+    },
+    selectUrl: {
+      type: String,
+      required: true
+    },
+    selectWildcard: {
+      type: String,
+      required: true
+    },
+    selectMainLabel: {
+      type: String,
+      default: 'Organismo:'
+    },
+    selectChildLabel: {
+      type: String,
+      default: 'Organismo nivel inferior:'
+    },
+    selectDataProcessor: {
+      type: Function,
+      required: true
+    }
+  },
   created: function () {
     loadData(1, this)
   }
