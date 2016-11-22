@@ -1,10 +1,15 @@
 <template>
   <div>
-    <cascade-select v-on:selected_option="onSelectedOption"
-      :disabled="loadingData"
-      v-for="select in selects"
-      v-bind:select="select">
-    </cascade-select>
+    <div class="vue-cascade-select">
+      <cascade-select v-on:selected_option="onSelectedOption"
+        :disabled="loadingData"
+        v-for="select in selects"
+        v-bind:select="select">
+      </cascade-select>
+    </div>
+    <div>
+      <p><strong>Seleccion actual: </strong>{{currentSelection.name}}</p>
+    </div>
   </div>
 </template>
 
@@ -16,8 +21,19 @@ const createSelectData = (level, options, $this) => {
   return {
     level: level,
     options: options,
+    selected: null,
     label: label
   }
+}
+
+const createPathOfSelects = (selects) => {
+  let path = ""
+   for (let i in selects) {
+     if (selects[i].selected ) {
+       path = path + "/" + selects[i].selected
+     }
+   }
+   console.log(path)
 }
 
 const loadData = (idSelected, $this) => {
@@ -41,7 +57,10 @@ export default {
     CascadeSelect
   },
   methods: {
-    onSelectedOption: function (level, idSelected) {
+    onSelectedOption: function (level, idSelected, optionText) {
+      this.currentSelection.id = idSelected;
+      this.currentSelection.name = optionText;
+      createPathOfSelects(this.selects)
       if (level < this.selects.length - 1) {
         this.selects.splice(level + 1, this.selects.length)
       }
@@ -57,7 +76,8 @@ export default {
   data () {
     return {
       selects: [],
-      loadingData: false
+      loadingData: false,
+      currentSelection: {id: null, name: null}
     }
   },
   props: {

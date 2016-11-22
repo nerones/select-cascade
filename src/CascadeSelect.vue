@@ -9,7 +9,7 @@
       </select>
     </div>
     <div v-else>
-      <p><span>{{select.level}}</span> No hay mas hijos</p>
+      <p><span>{{select.label}}</span> No hay mas hijos</p>
     </div>
   </div>
 </template>
@@ -23,7 +23,10 @@ export default {
   },
   methods: {
     onChange: function (event) {
-      this.$emit('selected_option', this.select.level, this.selected)
+      //TODO improve get text from selected option
+      let optionText = event.target.selectedOptions[0].innerText.trim();
+      this.select.selected = this.selected
+      this.$emit('selected_option', this.select.level, this.selected, optionText)
     }
   }
 }
